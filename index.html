@@ -148,6 +148,9 @@
             btnUpload: "UPLOAD",
             lblUploading: "UPLOADING...",
             btnFinish: "FINISH",
+            stateActive: "ACTIVE/PAID",
+            stateReserved: "RESERVED",
+            statePartial: "PARTIAL",
             headers: [
                 "CAR", "MATRICULE", "CLIENT NAME", "PHONE", "ID CARD N°", "DRIVING LICENCE", "DOCS",
                 "DATE OUT", "TIME OUT", "DATE IN", "EXT. DATE IN", "TIME IN", "DAYS", "DAY PRICE",
@@ -175,6 +178,9 @@
             btnUpload: "CHARGER",
             lblUploading: "CHARGEMENT...",
             btnFinish: "TERMINER",
+            stateActive: "PAYÉ/ACTIF",
+            stateReserved: "RÉSERVÉ",
+            statePartial: "PARTIEL",
             headers: [
                 "VOITURE", "MATRICULE", "NOM CLIENT", "TÉLÉPHONE", "N° CIN", "PERMIS DE CONDUIRE", "DOCS",
                 "DATE DÉPART", "HEURE DÉPART", "DATE RETOUR", "PROLONG. DATE", "HEURE RETOUR", "JOURS", "PRIX/JOUR",
@@ -202,6 +208,9 @@
             btnUpload: "رفع ملف",
             lblUploading: "جاري الرفع...",
             btnFinish: "إنهاء",
+            stateActive: "نشط/مدفوع",
+            stateReserved: "محجوز",
+            statePartial: "دفع جزئي",
             headers: [
                 "السيارة", "رقم اللوحة", "اسم الزبون", "الهاتف", "رقم البطاقة الوطنية", "رخصة السياقة", "الوثائق",
                 "تاريخ الخروج", "ساعة الخروج", "تاريخ الدخول", "تاريخ التمديد", "ساعة الدخول", "الأيام", "سعر اليوم",
@@ -224,7 +233,7 @@
     function applyTranslations() {
         const trans = translations[currentLang];
         
-        // Translate interface components
+        // Translate stable application interface items
         document.getElementById('lbl-tools').innerText = trans.tools;
         document.getElementById('lbl-history-title').innerText = trans.historyTitle;
         document.getElementById('lbl-search-data').innerText = trans.searchData;
@@ -239,17 +248,26 @@
             searchStatus.innerText = trans.statusReady;
         }
 
-        // Render Table Headers
+        // Render Table Headers safely
         const mainHeader = document.getElementById('mainTableHeader');
         mainHeader.innerHTML = `<tr>${trans.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
         const historyHeader = document.getElementById('historyTableHeader');
         historyHeader.innerHTML = `<tr>${trans.historyHeaders.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
-        // Update inline table buttons
+        // Update inline table buttons labels on translation click without full structural redraw
         document.querySelectorAll('.btn-finish').forEach(btn => btn.innerText = trans.btnFinish);
         document.querySelectorAll('.btn-up').forEach(btn => btn.innerText = trans.btnUpload);
         document.querySelectorAll('.up-loading').forEach(div => div.innerText = trans.lblUploading);
+
+        // Update select option texts dynamically while retaining data integrity
+        document.querySelectorAll('.state-selector').forEach(sel => {
+            const currentSelectedValue = sel.value; 
+            sel.options[1].text = trans.stateActive;
+            sel.options[2].text = trans.stateReserved;
+            sel.options[3].text = trans.statePartial;
+            sel.value = currentSelectedValue; 
+        });
     }
 
     function handleExit() {
@@ -321,11 +339,11 @@
                 <td><input value="${row[17]||''}" onchange="upd(${i},17,this.value)"></td>
                 <td><input value="${row[18]||''}" onchange="upd(${i},18,this.value)"></td>
                 <td>
-                    <select onchange="upd(${i},19,this.value)">
+                    <select class="state-selector" onchange="upd(${i},19,this.value)">
                         <option value="" ${row[19]==''?'selected':''}>-</option>
-                        <option value="ACTIVE/PAID" ${row[19]=='ACTIVE/PAID'?'selected':''}>ACTIVE/PAID</option>
-                        <option value="RESERVED" ${row[19]=='RESERVED'?'selected':''}>RESERVED</option>
-                        <option value="PARTIAL" ${row[19]=='PARTIAL'?'selected':''}>PARTIAL</option>
+                        <option value="ACTIVE/PAID" ${row[19]=='ACTIVE/PAID'?'selected':''}>${trans.stateActive}</option>
+                        <option value="RESERVED" ${row[19]=='RESERVED'?'selected':''}>${trans.stateReserved}</option>
+                        <option value="PARTIAL" ${row[19]=='PARTIAL'?'selected':''}>${trans.statePartial}</option>
                     </select>
                 </td>
                 <td>
@@ -422,16 +440,24 @@
             return textMatch && dateMatch;
         });
 
-        document.getElementById('resBody').innerHTML = filtered.map(r => `
-            <tr>
-                <td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td>
-                <td>${r[6]?'<a href="'+r[6]+'" target="_blank">📄</a>':''}</td>
-                <td>${r[7]}</td><td>${r[8]}</td><td>${r[9]}</td><td>${r[10]}</td><td>${r[11]}</td>
-                <td>${r[12]}</td><td>${r[13]}</td><td>${r[14]}</td><td>${r[15]}</td><td>${r[16]}</td>
-                <td>${r[17]}</td><td>${r[18]}</td>
-                <td>${r[19]}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${r[21]}</td><td>${r[22]||''}</td>
-            </tr>
-        `).join('');
+        // Mapping search results cleanly with accurate localized lookup for state option tags
+        document.getElementById('resBody').innerHTML = filtered.map(r => {
+            let stateLabel = r[19] || '';
+            if (r[19] === "ACTIVE/PAID") stateLabel = trans.stateActive;
+            else if (r[19] === "RESERVED") stateLabel = trans.stateReserved;
+            else if (r[19] === "PARTIAL") stateLabel = trans.statePartial;
+
+            return `
+                <tr>
+                    <td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td>
+                    <td>${r[6]?'<a href="'+r[6]+'" target="_blank">📄</a>':''}</td>
+                    <td>${r[7]}</td><td>${r[8]}</td><td>${r[9]}</td><td>${r[10]}</td><td>${r[11]}</td>
+                    <td>${r[12]}</td><td>${r[13]}</td><td>${r[14]}</td><td>${r[15]}</td><td>${r[16]}</td>
+                    <td>${r[17]}</td><td>${r[18]}</td>
+                    <td>${stateLabel}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${r[21]}</td><td>${r[22]||''}</td>
+                </tr>
+            `;
+        }).join('');
         status.innerText = filtered.length + trans.statusResults; status.style.color = "#2ecc71";
     }
 
