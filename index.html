@@ -127,6 +127,7 @@
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzy7bLnDJty6h3Ca9qfk65kJnIy9oHrNqRJ6UkRa_21Zt2oLagFHPyqmhNokQgp59Ga7g/exec"; 
+    const AUTH_TOKEN = "Honda@1979"; // Matches SECRET_TOKEN in your Google Apps Script
     let currentData = [];
     let officialTime = new Date();
     let isSaving = false;
@@ -141,7 +142,12 @@
         fetch('https://worldtimeapi.org/api/timezone/Africa/Casablanca').then(r => r.json()).then(d => { if(d) officialTime = new Date(d.datetime); });
         try {
             const res = await fetch(SCRIPT_URL);
-            currentData = await res.json();
+            const rawData = await res.json();
+            // Map the parsed JSON properties to clean formatting instantly
+            currentData = rawData.map((row, idx) => {
+                if (idx === 0) return row;
+                return row.map(cell => cleanSheetValue(cell));
+            });
             renderTable();
         } catch(e) { updateStatus("OFFLINE", "#e74c3c"); }
 
@@ -159,21 +165,19 @@
     }
 
     function parseEliteDate(s) {
-        if(!s || s.length < 8) return null;
-        const [d, m, y] = s.split('/').map(Number);
+        if(!s || String(s).length < 8) return null;
+        const [d, m, y] = String(s).split('/').map(Number);
         return new Date(2000+y, m-1, d);
     }
 
-    // Universal clear layout filter that fixes Google sheet raw JSON date format outputs instantly
+    // Comprehensive value filter converting raw internal Google JSON dates back into raw standard text strings
     function cleanSheetValue(val) {
         if (val === undefined || val === null) return "";
         const sVal = String(val).trim();
-        // Check if value is a raw ISO string representation
         if (sVal.includes('T') && sVal.includes('Z') && !isNaN(Date.parse(sVal))) {
             const d = new Date(sVal);
             const dStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
             const tStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-            // If time is midnight exactly, it might just be a standard plain Date column entry
             if (tStr === "00:00") {
                 return dStr;
             }
@@ -265,7 +269,10 @@
         isSaving = true;
         updateStatus("SAVING...", "#f39c12");
         try {
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", data: currentData }) });
+            await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ token: AUTH_TOKEN, action: "saveAll", data: currentData }) 
+            });
             updateStatus("LIVE", "#2ecc71");
             isSaving = false;
         } catch(e) { 
@@ -283,7 +290,10 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             const base64 = e.target.result.split(',')[1];
-            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })});
+            const res = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ token: AUTH_TOKEN, action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })
+            });
             currentData[i][6] = await res.text();
             document.getElementById(`up-ld-${i}`).style.display = "none";
             isSaving = false;
@@ -298,25 +308,31 @@
         status.innerText = "SEARCHING..."; status.style.color = "#f39c12";
         const q = document.getElementById('uSearch').value.toLowerCase().trim();
         
-        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getHistory" }) });
-        const history = await res.json();
-        const filtered = history.filter((r, idx) => {
-            if(idx === 0) return false;
-            // Clean value strings before performing substring matching to handle object data and dates safely
-            return q === "" || r.some(c => cleanSheetValue(c).toLowerCase().includes(q));
-        });
+        try {
+            const res = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ token: AUTH_TOKEN, action: "getHistory" }) 
+            });
+            const history = await res.json();
+            const filtered = history.filter((r, idx) => {
+                if(idx === 0) return false;
+                return q === "" || r.some(c => cleanSheetValue(c).toLowerCase().includes(q));
+            });
 
-        document.getElementById('resBody').innerHTML = filtered.map(r => `
-            <tr>
-                <td>${cleanSheetValue(r[0])}</td><td>${cleanSheetValue(r[1])}</td><td>${cleanSheetValue(r[2])}</td><td>${cleanSheetValue(r[3])}</td><td>${cleanSheetValue(r[4])}</td><td>${cleanSheetValue(r[5])}</td>
-                <td>${r[6]?'<a href="'+r[6]+'" target="_blank">📄</a>':''}</td>
-                <td>${cleanSheetValue(r[7])}</td><td>${cleanSheetValue(r[8])}</td><td>${cleanSheetValue(r[9])}</td><td>${cleanSheetValue(r[10])}</td><td>${cleanSheetValue(r[11])}</td>
-                <td>${cleanSheetValue(r[12])}</td><td>${cleanSheetValue(r[13])}</td><td>${cleanSheetValue(r[14])}</td><td>${cleanSheetValue(r[15])}</td><td>${cleanSheetValue(r[16])}</td>
-                <td>${cleanSheetValue(r[17])}</td><td>${cleanSheetValue(r[18])}</td>
-                <td>${cleanSheetValue(r[19])}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${cleanSheetValue(r[21])}</td><td>${cleanSheetValue(r[22])}</td>
-            </tr>
-        `).join('');
-        status.innerText = filtered.length + " RESULTS FOUND"; status.style.color = "#2ecc71";
+            document.getElementById('resBody').innerHTML = filtered.map(r => `
+                <tr>
+                    <td>${cleanSheetValue(r[0])}</td><td>${cleanSheetValue(r[1])}</td><td>${cleanSheetValue(r[2])}</td><td>${cleanSheetValue(r[3])}</td><td>${cleanSheetValue(r[4])}</td><td>${cleanSheetValue(r[5])}</td>
+                    <td>${r[6]?'<a href="'+r[6]+'" target="_blank">📄</a>':''}</td>
+                    <td>${cleanSheetValue(r[7])}</td><td>${cleanSheetValue(r[8])}</td><td>${cleanSheetValue(r[9])}</td><td>${cleanSheetValue(r[10])}</td><td>${cleanSheetValue(r[11])}</td>
+                    <td>${cleanSheetValue(r[12])}</td><td>${cleanSheetValue(r[13])}</td><td>${cleanSheetValue(r[14])}</td><td>${cleanSheetValue(r[15])}</td><td>${cleanSheetValue(r[16])}</td>
+                    <td>${cleanSheetValue(r[17])}</td><td>${cleanSheetValue(r[18])}</td>
+                    <td>${cleanSheetValue(r[19])}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${cleanSheetValue(r[21])}</td><td>${cleanSheetValue(r[22])}</td>
+                </tr>
+            `).join('');
+            status.innerText = filtered.length + " RESULTS FOUND"; status.style.color = "#2ecc71";
+        } catch (err) {
+            status.innerText = "SEARCH FAILED"; status.style.color = "#e74c3c";
+        }
     }
 
     function clearHistorySearch() {
@@ -330,7 +346,10 @@
         if(confirm("MOVE TO HISTORY?")) {
             isSaving = true;
             updateStatus("ARCHIVING...", "#f39c12");
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "archive", row: i, data: currentData[i], officialTime: officialTime.toISOString() })});
+            await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ token: AUTH_TOKEN, action: "archive", row: i, data: currentData[i], officialTime: officialTime.toISOString() })
+            });
             isSaving = false;
             location.reload();
         }
