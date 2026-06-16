@@ -126,8 +126,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj7bLnDJty6h3Ca9qfk65kJnIy9oHrNqRJ6UkRa_21Zt2oLagFHPyqmhNokQgp59Ga7g/exec"; 
-    const AUTH_TOKEN = "Honda@1979"; // Matches SECRET_TOKEN in your Google Apps Script
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSRZXabdjijBj6fdGf7WF2x5-2j5vqODO1xPU72gApR85mgjR9UNeRIIbpQg-NM3TNHg/exec"; 
     let currentData = [];
     let officialTime = new Date();
     let isSaving = false;
@@ -143,7 +142,6 @@
         try {
             const res = await fetch(SCRIPT_URL);
             const rawData = await res.json();
-            // Map the parsed JSON properties to clean formatting instantly
             currentData = rawData.map((row, idx) => {
                 if (idx === 0) return row;
                 return row.map(cell => cleanSheetValue(cell));
@@ -170,7 +168,6 @@
         return new Date(2000+y, m-1, d);
     }
 
-    // Comprehensive value filter converting raw internal Google JSON dates back into raw standard text strings
     function cleanSheetValue(val) {
         if (val === undefined || val === null) return "";
         const sVal = String(val).trim();
@@ -271,7 +268,7 @@
         try {
             await fetch(SCRIPT_URL, { 
                 method: "POST", 
-                body: JSON.stringify({ token: AUTH_TOKEN, action: "saveAll", data: currentData }) 
+                body: JSON.stringify({ action: "saveAll", data: currentData }) 
             });
             updateStatus("LIVE", "#2ecc71");
             isSaving = false;
@@ -292,7 +289,7 @@
             const base64 = e.target.result.split(',')[1];
             const res = await fetch(SCRIPT_URL, { 
                 method: "POST", 
-                body: JSON.stringify({ token: AUTH_TOKEN, action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })
+                body: JSON.stringify({ action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })
             });
             currentData[i][6] = await res.text();
             document.getElementById(`up-ld-${i}`).style.display = "none";
@@ -305,16 +302,15 @@
 
     async function runHistorySearch() {
         const status = document.getElementById('search-status');
-        status.innerText = "SEARCHING..."; status.style.color = "#f39c12";
+        status.innerText = "SEARCHING...", status.style.color = "#f39c12";
         const q = document.getElementById('uSearch').value.toLowerCase().trim();
         
         try {
             const res = await fetch(SCRIPT_URL, { 
                 method: "POST", 
-                body: JSON.stringify({ token: AUTH_TOKEN, action: "getHistory" }) 
+                body: JSON.stringify({ action: "getHistory" }) 
             });
             
-            // Safe JSON retrieval parse
             const history = await res.json();
             
             const filtered = history.filter((r, idx) => {
@@ -352,7 +348,7 @@
             updateStatus("ARCHIVING...", "#f39c12");
             await fetch(SCRIPT_URL, { 
                 method: "POST", 
-                body: JSON.stringify({ token: AUTH_TOKEN, action: "archive", row: i, data: currentData[i], officialTime: officialTime.toISOString() })
+                body: JSON.stringify({ action: "archive", row: i, data: currentData[i], officialTime: officialTime.toISOString() })
             });
             isSaving = false;
             location.reload();
