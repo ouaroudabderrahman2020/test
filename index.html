@@ -126,7 +126,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzy7bLnDJty6h3Ca9qfk65kJnIy9oHrNqRJ6UkRa_21Zt2oLagFHPyqmhNokQgp59Ga7g/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj7bLnDJty6h3Ca9qfk65kJnIy9oHrNqRJ6UkRa_21Zt2oLagFHPyqmhNokQgp59Ga7g/exec"; 
     const AUTH_TOKEN = "Honda@1979"; // Matches SECRET_TOKEN in your Google Apps Script
     let currentData = [];
     let officialTime = new Date();
@@ -313,7 +313,10 @@
                 method: "POST", 
                 body: JSON.stringify({ token: AUTH_TOKEN, action: "getHistory" }) 
             });
+            
+            // Safe JSON retrieval parse
             const history = await res.json();
+            
             const filtered = history.filter((r, idx) => {
                 if(idx === 0) return false;
                 return q === "" || r.some(c => cleanSheetValue(c).toLowerCase().includes(q));
@@ -331,6 +334,7 @@
             `).join('');
             status.innerText = filtered.length + " RESULTS FOUND"; status.style.color = "#2ecc71";
         } catch (err) {
+            console.error(err);
             status.innerText = "SEARCH FAILED"; status.style.color = "#e74c3c";
         }
     }
