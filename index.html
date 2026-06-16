@@ -14,7 +14,7 @@
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #000; overflow-x: hidden; }
 
-        /* Modern responsive flex layout for header header */
+        /* Flexible responsive header structure */
         .header-section { 
             background: white; 
             padding: 15px; 
@@ -28,45 +28,75 @@
             align-items: center;
         }
         
-        .logo-row { text-align: center; }
-        .main-logo { height: 80px; width: auto; }
+        .logo-row { text-align: center; display: block; }
+        .main-logo { height: 80px; width: auto; display: block; }
 
         .status-row { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .clock-display { background: white; border: 2px solid #eee; padding: 5px 15px; border-radius: 8px; text-align: center; font-weight: bold; min-width: 140px; }
         
-        /* Mobile specific design overriding adjustments */
+        .live-indicator-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        /* Mobile layout adjustments */
         @media (max-width: 767px) {
             .header-section {
                 flex-direction: row;
                 justify-content: space-between;
                 align-items: center;
-                padding: 10px;
-                gap: 10px;
+                padding: 10px 5px;
+                gap: 5px;
             }
             .logo-row {
                 text-align: left;
+                padding: 0 !important;
+                margin: 0 !important;
             }
             .main-logo {
-                height: 50px; /* Scaled down logo slightly for compact top-left fitting */
+                height: 65px; /* Maximize size to keep it clear and distinct */
+                padding: 0 !important;
+                margin: 0 !important;
             }
+            
+            /* Clean 2x2 grid alignment for top-right items */
             .status-row {
-                justify-content: flex-end;
-                gap: 8px;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(85px, 1fr));
+                gap: 6px;
+                justify-items: stretch;
+                align-items: center;
+                flex: 1;
+                max-width: 210px;
             }
+            
+            .btn-tools, .btn-lang, .clock-display, .live-indicator-wrapper {
+                width: 100% !important;
+                box-sizing: border-box;
+                margin: 0 !important;
+                padding: 6px 4px !important;
+                font-size: 11px !important;
+                text-align: center;
+                justify-content: center;
+                height: 38px;
+                display: flex;
+                align-items: center;
+            }
+            
             .clock-display {
-                min-width: auto;
-                padding: 3px 8px;
-                font-size: 13px;
+                flex-direction: column;
+                line-height: 1.1;
+                min-width: unset;
             }
             #live-clock {
-                font-size: 15px !important;
-            }
-            .btn-tools, .btn-lang {
-                padding: 6px 10px;
-                font-size: 11px;
+                font-size: 12px !important;
+                margin-top: 1px;
             }
             #sync-text {
-                font-size: 13px;
+                font-size: 11px !important;
             }
         }
 
@@ -128,12 +158,12 @@
     <div class="logo-row"><img src="logo.jpg" alt="ELITE" class="main-logo"></div>
     <div class="status-row">
         <a href="https://glamcarsnador.github.io/utility-website/" target="_blank" rel="noopener noreferrer" class="btn-tools" id="lbl-tools">TOOLS</a>
-        <button class="btn-lang" onclick="toggleLanguage()" id="btn-lang-toggle">🌐 EN / FR / AR</button>
+        <button class="btn-lang" onclick="toggleLanguage()" id="btn-lang-toggle">🌐 EN/FR/AR</button>
         <div class="clock-display">
             <div id="live-date">--/--/--</div>
             <div id="live-clock" style="color: var(--orange); font-size: 20px;">00:00:00</div>
         </div>
-        <div>
+        <div class="live-indicator-wrapper">
             <span id="sync-dot" style="color:#2ecc71">●</span> 
             <span id="sync-text" style="color:#2ecc71">LIVE</span>
         </div>
