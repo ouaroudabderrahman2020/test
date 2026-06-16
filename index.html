@@ -387,6 +387,18 @@
         return new Date(2000+y, m-1, d);
     }
 
+    // Helper to beautifully format raw incoming timestamp rows to match sheet dd/MM/yy HH:mm layout
+    function formatArchiveStamp(val) {
+        if (!val) return "";
+        if (typeof val === 'string' && val.includes('T') && !isNaN(Date.parse(val))) {
+            const d = new Date(val);
+            const dateStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+            const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            return `${dateStr} ${timeStr}`;
+        }
+        return val;
+    }
+
     function renderTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
@@ -555,7 +567,7 @@
                     <td>${r[7]}</td><td>${r[8]}</td><td>${r[9]}</td><td>${r[10]}</td><td>${r[11]}</td>
                     <td>${r[12]}</td><td>${r[13]}</td><td>${r[14]}</td><td>${r[15]}</td><td>${r[16]}</td>
                     <td>${r[17]}</td><td>${r[18]}</td>
-                    <td>${stateLabel}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${r[21]}</td><td>${r[22]||''}</td>
+                    <td>${stateLabel}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${r[21]}</td><td>${formatArchiveStamp(r[22])}</td>
                 </tr>
             `;
         }).join('');
