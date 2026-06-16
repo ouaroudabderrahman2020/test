@@ -302,7 +302,7 @@
 
     async function runHistorySearch() {
         const status = document.getElementById('search-status');
-        status.innerText = "SEARCHING...", status.style.color = "#f39c12";
+        status.innerText = "SEARCHING..."; status.style.color = "#f39c12";
         const q = document.getElementById('uSearch').value.toLowerCase().trim();
         
         try {
@@ -311,10 +311,13 @@
                 body: JSON.stringify({ action: "getHistory" }) 
             });
             
-            const history = await res.json();
+            // Fetch payload response as robust text stream first to circumvent direct cross-origin redirect blocks
+            const resText = await res.text();
+            const history = JSON.parse(resText);
             
             const filtered = history.filter((r, idx) => {
                 if(idx === 0) return false;
+                // Checks if input value matches any data column cells anywhere across the active row query
                 return q === "" || r.some(c => cleanSheetValue(c).toLowerCase().includes(q));
             });
 
