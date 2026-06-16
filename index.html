@@ -100,20 +100,16 @@
 </div>
 
 <div class="console">
-    <h2 style="margin-bottom: 20px;">HISTORY SEARCH</h2>
+    <h2 style="margin-bottom: 20px; text-align: center;">HISTORY SEARCH</h2>
     <div class="search-grid">
         <div class="search-box">
             <label style="font-size:10px; color:gray;">DATA</label>
             <input type="text" id="uSearch" placeholder="NAME, PHONE, CAR..." style="text-align:left;">
         </div>
-        <div class="search-box">
-            <label style="font-size:10px; color:gray;">FROM</label><input type="text" id="dateStart" placeholder="dd/mm/yy" style="width:80px;">
-            <label style="font-size:10px; color:gray;">TO</label><input type="text" id="dateEnd" placeholder="dd/mm/yy" style="width:80px;">
-        </div>
         <button class="btn-search" onclick="runHistorySearch()">SEARCH</button>
         <button class="btn-reset" onclick="clearHistorySearch()">RESET</button>
     </div>
-    <div style="margin-top: 15px; font-weight: bold;"><span id="search-status">READY</span></div>
+    <div style="margin-top: 15px; font-weight: bold; text-align: center;"><span id="search-status">READY</span></div>
 
     <div class="table-wrapper" style="margin-top:20px; background:white; color:black;">
         <table id="historyTable">
@@ -300,22 +296,14 @@
     async function runHistorySearch() {
         const status = document.getElementById('search-status');
         status.innerText = "SEARCHING..."; status.style.color = "#f39c12";
-        const q = document.getElementById('uSearch').value.toLowerCase();
-        const sD = parseEliteDate(document.getElementById('dateStart').value);
-        const eD = parseEliteDate(document.getElementById('dateEnd').value);
+        const q = document.getElementById('uSearch').value.toLowerCase().trim();
+        
         const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getHistory" }) });
         const history = await res.json();
         const filtered = history.filter((r, idx) => {
             if(idx === 0) return false;
-            const textMatch = q === "" || r.some(c => String(c).toLowerCase().includes(q));
-            const rOut = parseEliteDate(r[7]);
-            const rIn = parseEliteDate(r[10]||r[9]);
-            let dateMatch = true;
-            if(sD && eD && rOut && rIn) {
-                sD.setHours(0,0,0); eD.setHours(23,59,59);
-                dateMatch = (rOut <= eD && rIn >= sD);
-            }
-            return textMatch && dateMatch;
+            // Clean value strings before performing substring matching to handle object data and dates safely
+            return q === "" || r.some(c => cleanSheetValue(c).toLowerCase().includes(q));
         });
 
         document.getElementById('resBody').innerHTML = filtered.map(r => `
@@ -333,8 +321,6 @@
 
     function clearHistorySearch() {
         document.getElementById('uSearch').value = "";
-        document.getElementById('dateStart').value = "";
-        document.getElementById('dateEnd').value = "";
         document.getElementById('resBody').innerHTML = "";
         document.getElementById('search-status').innerText = "READY";
         document.getElementById('search-status').style.color = "white";
