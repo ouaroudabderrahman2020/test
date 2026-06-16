@@ -126,7 +126,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSRZXabdjijBj6fdGf7WF2x5-2j5vqODO1xPU72gApR85mgjR9UNeRIIbpQg-NM3TNHg/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw71NzlC8raf3Oo1bRvu0ZSxodYhlIUV3c8Wae1BZ6azLkHHxslqRgpzwyOfjsqc-dBPg/exec"; 
     let currentData = [];
     let officialTime = new Date();
     let isSaving = false;
@@ -306,14 +306,9 @@
         const q = document.getElementById('uSearch').value.toLowerCase().trim();
         
         try {
-            const res = await fetch(SCRIPT_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ action: "getHistory" }) 
-            });
-            
-            // Fetch payload response as robust text stream first to circumvent direct cross-origin redirect blocks
-            const resText = await res.text();
-            const history = JSON.parse(resText);
+            // Uses clear GET query parameters to bypass CORS policy browser block completely
+            const res = await fetch(SCRIPT_URL + "?action=getHistory");
+            const history = await res.json();
             
             const filtered = history.filter((r, idx) => {
                 if(idx === 0) return false;
