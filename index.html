@@ -14,14 +14,66 @@
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #000; overflow-x: hidden; }
 
-        .header-section { background: white; padding: 15px; border-bottom: 3px solid #ddd; position: sticky; top: 0; z-index: 1000; }
-        .logo-row { text-align: center; margin-bottom: 10px; }
+        /* Modern responsive flex layout for header header */
+        .header-section { 
+            background: white; 
+            padding: 15px; 
+            border-bottom: 3px solid #ddd; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .logo-row { text-align: center; }
         .main-logo { height: 80px; width: auto; }
-        @media (min-width: 768px) { .main-logo { height: 120px; } }
 
-        .status-row { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; padding: 10px; }
+        .status-row { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .clock-display { background: white; border: 2px solid #eee; padding: 5px 15px; border-radius: 8px; text-align: center; font-weight: bold; min-width: 140px; }
         
+        /* Mobile specific design overriding adjustments */
+        @media (max-width: 767px) {
+            .header-section {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                gap: 10px;
+            }
+            .logo-row {
+                text-align: left;
+            }
+            .main-logo {
+                height: 50px; /* Scaled down logo slightly for compact top-left fitting */
+            }
+            .status-row {
+                justify-content: flex-end;
+                gap: 8px;
+            }
+            .clock-display {
+                min-width: auto;
+                padding: 3px 8px;
+                font-size: 13px;
+            }
+            #live-clock {
+                font-size: 15px !important;
+            }
+            .btn-tools, .btn-lang {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            #sync-text {
+                font-size: 13px;
+            }
+        }
+
+        @media (min-width: 768px) { 
+            .main-logo { height: 120px; } 
+        }
+
         #sync-text { font-weight: 900; font-size: 18px; transition: 0.3s; }
         .status-pulse { animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
