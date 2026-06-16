@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
     <link rel="icon" type="image/png" href="favicon.png">
     <meta charset="UTF-8">
@@ -14,96 +14,14 @@
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #000; overflow-x: hidden; }
 
-        /* Flexible responsive header structure */
-        .header-section { 
-            background: white; 
-            padding: 15px; 
-            border-bottom: 3px solid #ddd; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .logo-row { text-align: center; display: block; }
-        .main-logo { height: 80px; width: auto; display: block; }
+        .header-section { background: white; padding: 15px; border-bottom: 3px solid #ddd; position: sticky; top: 0; z-index: 1000; }
+        .logo-row { text-align: center; margin-bottom: 10px; }
+        .main-logo { height: 80px; width: auto; }
+        @media (min-width: 768px) { .main-logo { height: 120px; } }
 
-        .status-row { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .status-row { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; padding: 10px; }
         .clock-display { background: white; border: 2px solid #eee; padding: 5px 15px; border-radius: 8px; text-align: center; font-weight: bold; min-width: 140px; }
         
-        .live-indicator-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            font-weight: bold;
-        }
-
-        /* Mobile layout adjustments */
-        @media (max-width: 767px) {
-            .header-section {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 5px;
-                gap: 5px;
-            }
-            .logo-row {
-                text-align: left;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .main-logo {
-                height: 65px; /* Maximize size to keep it clear and distinct */
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            
-            /* Clean 2x2 grid alignment for top-right items */
-            .status-row {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(85px, 1fr));
-                gap: 6px;
-                justify-items: stretch;
-                align-items: center;
-                flex: 1;
-                max-width: 210px;
-            }
-            
-            .btn-tools, .btn-lang, .clock-display, .live-indicator-wrapper {
-                width: 100% !important;
-                box-sizing: border-box;
-                margin: 0 !important;
-                padding: 6px 4px !important;
-                font-size: 11px !important;
-                text-align: center;
-                justify-content: center;
-                height: 38px;
-                display: flex;
-                align-items: center;
-            }
-            
-            .clock-display {
-                flex-direction: column;
-                line-height: 1.1;
-                min-width: unset;
-            }
-            #live-clock {
-                font-size: 12px !important;
-                margin-top: 1px;
-            }
-            #sync-text {
-                font-size: 11px !important;
-            }
-        }
-
-        @media (min-width: 768px) { 
-            .main-logo { height: 120px; } 
-        }
-
         #sync-text { font-weight: 900; font-size: 18px; transition: 0.3s; }
         .status-pulse { animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
@@ -132,9 +50,8 @@
         .search-box { background: white; padding: 10px; border-radius: 8px; color: black; display: flex; gap: 10px; align-items: center; min-width: 280px; }
         .btn-search { background: var(--blue); color: white; border: none; padding: 12px 35px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .btn-reset { background: #e74c3c; color: white; border: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        
-        .btn-tools, .btn-lang {
-            background: #2c3e50;
+        .btn-tools {
+            background: #2c3e50; 
             color: white;
             text-decoration: none;
             padding: 8px 15px;
@@ -142,11 +59,9 @@
             font-weight: bold;
             border: 2px solid #eee;
             transition: 0.3s;
-            cursor: pointer;
-            font-size: 14px;
         }
 
-        .btn-tools:hover, .btn-lang:hover {
+        .btn-tools:hover {
             background: #34495e;
             border-color: var(--blue);
         }
@@ -157,13 +72,14 @@
 <div class="header-section">
     <div class="logo-row"><img src="logo.jpg" alt="ELITE" class="main-logo"></div>
     <div class="status-row">
-        <a href="https://glamcarsnador.github.io/utility-website/" target="_blank" rel="noopener noreferrer" class="btn-tools" id="lbl-tools">TOOLS</a>
-        <button class="btn-lang" onclick="toggleLanguage()" id="btn-lang-toggle">🌐 EN/FR/AR</button>
+        <a href="https://glamcarsnador.github.io/utility-website/" target="_blank" rel="noopener noreferrer" class="btn-tools">
+            TOOLS
+        </a>
         <div class="clock-display">
             <div id="live-date">--/--/--</div>
             <div id="live-clock" style="color: var(--orange); font-size: 20px;">00:00:00</div>
         </div>
-        <div class="live-indicator-wrapper">
+        <div>
             <span id="sync-dot" style="color:#2ecc71">●</span> 
             <span id="sync-text" style="color:#2ecc71">LIVE</span>
         </div>
@@ -172,32 +88,42 @@
 
 <div class="table-wrapper">
     <table>
-        <thead id="mainTableHeader">
-            </thead>
+        <thead>
+            <tr>
+                <th>CAR</th><th>MATRICULE</th><th>CLIENT NAME</th><th>PHONE</th><th>ID CARD N°</th><th>DRIVING LICENCE</th><th>DOCS</th>
+                <th>DATE OUT</th><th>TIME OUT</th><th>DATE IN</th><th>EXT. DATE IN</th><th>TIME IN</th><th>DAYS</th><th>DAY PRICE</th>
+                <th>TOTAL</th><th>ADVANCE</th><th>REMAINING</th><th>KM OUT</th><th>KM IN</th><th>STATE</th><th>RANKING</th><th>NOTES</th><th>ACTIONS</th>
+            </tr>
+        </thead>
         <tbody id="tableBody"></tbody>
     </table>
 </div>
 
 <div class="console">
-    <h2 style="margin-bottom: 20px;" id="lbl-history-title">HISTORY SEARCH</h2>
+    <h2 style="margin-bottom: 20px;">HISTORY SEARCH</h2>
     <div class="search-grid">
         <div class="search-box">
-            <label style="font-size:10px; color:gray;" id="lbl-search-data">DATA</label>
+            <label style="font-size:10px; color:gray;">DATA</label>
             <input type="text" id="uSearch" placeholder="NAME, PHONE, CAR..." style="text-align:left;">
         </div>
         <div class="search-box">
-            <label style="font-size:10px; color:gray;" id="lbl-search-from">FROM</label><input type="text" id="dateStart" placeholder="dd/mm/yy" style="width:80px;">
-            <label style="font-size:10px; color:gray;" id="lbl-search-to">TO</label><input type="text" id="dateEnd" placeholder="dd/mm/yy" style="width:80px;">
+            <label style="font-size:10px; color:gray;">FROM</label><input type="text" id="dateStart" placeholder="dd/mm/yy" style="width:80px;">
+            <label style="font-size:10px; color:gray;">TO</label><input type="text" id="dateEnd" placeholder="dd/mm/yy" style="width:80px;">
         </div>
-        <button class="btn-search" id="btn-search-run" onclick="runHistorySearch()">SEARCH</button>
-        <button class="btn-reset" id="btn-search-reset" onclick="clearHistorySearch()">RESET</button>
+        <button class="btn-search" onclick="runHistorySearch()">SEARCH</button>
+        <button class="btn-reset" onclick="clearHistorySearch()">RESET</button>
     </div>
     <div style="margin-top: 15px; font-weight: bold;"><span id="search-status">READY</span></div>
 
     <div class="table-wrapper" style="margin-top:20px; background:white; color:black;">
         <table id="historyTable">
-            <thead id="historyTableHeader">
-                </thead>
+            <thead>
+                <tr>
+                    <th>CAR</th><th>MATRICULE</th><th>CLIENT NAME</th><th>PHONE</th><th>ID CARD N°</th><th>DRIVING LICENCE</th><th>DOCS</th>
+                    <th>DATE OUT</th><th>TIME OUT</th><th>DATE IN</th><th>EXT. DATE IN</th><th>TIME IN</th><th>DAYS</th><th>DAY PRICE</th>
+                    <th>TOTAL</th><th>ADVANCE</th><th>REMAINING</th><th>KM OUT</th><th>KM IN</th><th>STATE</th><th>RANKING</th><th>NOTES</th><th>ARCHIVED ON</th>
+                </tr>
+            </thead>
             <tbody id="resBody"></tbody>
         </table>
     </div>
@@ -205,153 +131,9 @@
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzy7bLnDJty6h3Ca9qfk65kJnIy9oHrNqRJ6UkRa_21Zt2oLagFHPyqmhNokQgp59Ga7g/exec"; 
-    const AUTH_TOKEN = "Honda@1979"; // Matches security rules in the Google Apps Script
     let currentData = [];
     let officialTime = new Date();
     let isSaving = false;
-
-    // Translation Dictionary Engine
-    let currentLang = 'en'; 
-    const languages = ['en', 'fr', 'ar'];
-    
-    const translations = {
-        en: {
-            tools: "TOOLS",
-            historyTitle: "HISTORY SEARCH",
-            searchData: "DATA",
-            searchFrom: "FROM",
-            searchTo: "TO",
-            btnSearch: "SEARCH",
-            btnReset: "RESET",
-            placeholderSearch: "NAME, PHONE, CAR...",
-            statusReady: "READY",
-            statusSearching: "SEARCHING...",
-            statusResults: " RESULTS FOUND",
-            confirmArchive: "MOVE TO HISTORY?",
-            btnUpload: "UPLOAD",
-            lblUploading: "UPLOADING...",
-            btnFinish: "FINISH",
-            stateActive: "ACTIVE/PAID",
-            stateReserved: "RESERVED",
-            statePartial: "PARTIAL",
-            headers: [
-                "CAR", "MATRICULE", "CLIENT NAME", "PHONE", "ID CARD N°", "DRIVING LICENCE", "DOCS",
-                "DATE OUT", "TIME OUT", "DATE IN", "EXT. DATE IN", "TIME IN", "DAYS", "DAY PRICE",
-                "TOTAL", "ADVANCE", "REMAINING", "KM OUT", "KM IN", "STATE", "RANKING", "NOTES", "ACTIONS"
-            ],
-            historyHeaders: [
-                "CAR", "MATRICULE", "CLIENT NAME", "PHONE", "ID CARD N°", "DRIVING LICENCE", "DOCS",
-                "DATE OUT", "TIME OUT", "DATE IN", "EXT. DATE IN", "TIME IN", "DAYS", "DAY PRICE",
-                "TOTAL", "ADVANCE", "REMAINING", "KM OUT", "KM IN", "STATE", "RANKING", "NOTES", "ARCHIVED ON"
-            ]
-        },
-        fr: {
-            tools: "OUTILS",
-            historyTitle: "RECHERCHE D'HISTORIQUE",
-            searchData: "DONNÉES",
-            searchFrom: "DE",
-            searchTo: "À",
-            btnSearch: "RECHERCHER",
-            btnReset: "RÉINITIALISER",
-            placeholderSearch: "NOM, TÉLÉPHONE, VOITURE...",
-            statusReady: "PRÊT",
-            statusSearching: "RECHERCHE...",
-            statusResults: " RÉSULTATS TROUVÉS",
-            confirmArchive: "DÉPLACER VERS L'HISTORIQUE ?",
-            btnUpload: "CHARGER",
-            lblUploading: "CHARGEMENT...",
-            btnFinish: "TERMINER",
-            stateActive: "PAYÉ/ACTIF",
-            stateReserved: "RÉSERVÉ",
-            statePartial: "PARTIEL",
-            headers: [
-                "VOITURE", "MATRICULE", "NOM CLIENT", "TÉLÉPHONE", "N° CIN", "PERMIS DE CONDUIRE", "DOCS",
-                "DATE DÉPART", "HEURE DÉPART", "DATE RETOUR", "PROLONG. DATE", "HEURE RETOUR", "JOURS", "PRIX/JOUR",
-                "TOTAL", "AVANCE", "RESTE", "KM DÉPART", "KM RETOUR", "ÉTAT", "CLASSEMENT", "NOTES", "ACTIONS"
-            ],
-            historyHeaders: [
-                "VOITURE", "MATRICULE", "NOM CLIENT", "TÉLÉPHONE", "N° CIN", "PERMIS DE CONDUIRE", "DOCS",
-                "DATE DÉPART", "HEURE DÉPART", "DATE RETOUR", "PROLONG. DATE", "HEURE RETOUR", "JOURS", "PRIX/JOUR",
-                "TOTAL", "AVANCE", "RESTE", "KM DÉPART", "KM RETOUR", "ÉTAT", "CLASSEMENT", "NOTES", "ARCHIVÉ LE"
-            ]
-        },
-        ar: {
-            tools: "الأدوات",
-            historyTitle: "البحث في الأرشيف",
-            searchData: "البيانات",
-            searchFrom: "من",
-            searchTo: "إلى",
-            btnSearch: "بحث",
-            btnReset: "إعادة تعيين",
-            placeholderSearch: "الاسم، الهاتف، السيارة...",
-            statusReady: "جاهز",
-            statusSearching: "جاري البحث...",
-            statusResults: " نتائج تم العثور عليها",
-            confirmArchive: "هل تريد النقل إلى الأرشيف؟",
-            btnUpload: "رفع ملف",
-            lblUploading: "جاري الرفع...",
-            btnFinish: "إنهاء",
-            stateActive: "نشط/مدفوع",
-            stateReserved: "محجوز",
-            statePartial: "دفع جزئي",
-            headers: [
-                "السيارة", "رقم اللوحة", "اسم الزبون", "الهاتف", "رقم البطاقة الوطنية", "رخصة السياقة", "الوثائق",
-                "تاريخ الخروج", "ساعة الخروج", "تاريخ الدخول", "تاريخ التمديد", "ساعة الدخول", "الأيام", "سعر اليوم",
-                "المجموع", "تسبق", "المتبقي", "عداد الخروج", "عداد الدخول", "الحالة", "التقييم", "ملاحظات", "إجراءات"
-            ],
-            historyHeaders: [
-                "السيارة", "رقم اللوحة", "اسم الزبون", "الهاتف", "رقم البطاقة الوطنية", "رخصة السياقة", "الوثائق",
-                "تاريخ الخروج", "ساعة الخروج", "تاريخ الدخول", "تاريخ التمديد", "ساعة الدخول", "الأيام", "سعر اليوم",
-                "المجموع", "تسبق", "المتبقي", "عداد الخروج", "عداد الدخول", "الحالة", "التقييم", "ملاحظات", "أرشفة في"
-            ]
-        }
-    };
-
-    function toggleLanguage() {
-        let nextIndex = (languages.indexOf(currentLang) + 1) % languages.length;
-        currentLang = languages[nextIndex];
-        applyTranslations();
-    }
-
-    function applyTranslations() {
-        const trans = translations[currentLang];
-        
-        // Translate stable application interface items
-        document.getElementById('lbl-tools').innerText = trans.tools;
-        document.getElementById('lbl-history-title').innerText = trans.historyTitle;
-        document.getElementById('lbl-search-data').innerText = trans.searchData;
-        document.getElementById('lbl-search-from').innerText = trans.searchFrom;
-        document.getElementById('lbl-search-to').innerText = trans.searchTo;
-        document.getElementById('btn-search-run').innerText = trans.btnSearch;
-        document.getElementById('btn-search-reset').innerText = trans.btnReset;
-        document.getElementById('uSearch').placeholder = trans.placeholderSearch;
-        
-        const searchStatus = document.getElementById('search-status');
-        if (searchStatus.innerText === "READY" || searchStatus.innerText === "PRÊT" || searchStatus.innerText === "جاهز") {
-            searchStatus.innerText = trans.statusReady;
-        }
-
-        // Render Table Headers safely
-        const mainHeader = document.getElementById('mainTableHeader');
-        mainHeader.innerHTML = `<tr>${trans.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
-
-        const historyHeader = document.getElementById('historyTableHeader');
-        historyHeader.innerHTML = `<tr>${trans.historyHeaders.map(h => `<th>${h}</th>`).join('')}</tr>`;
-
-        // Update inline table buttons labels on translation click without full structural redraw
-        document.querySelectorAll('.btn-finish').forEach(btn => btn.innerText = trans.btnFinish);
-        document.querySelectorAll('.btn-up').forEach(btn => btn.innerText = trans.btnUpload);
-        document.querySelectorAll('.up-loading').forEach(div => div.innerText = trans.lblUploading);
-
-        // Update select option texts dynamically while retaining data integrity
-        document.querySelectorAll('.state-selector').forEach(sel => {
-            const currentSelectedValue = sel.value; 
-            sel.options[1].text = trans.stateActive;
-            sel.options[2].text = trans.stateReserved;
-            sel.options[3].text = trans.statePartial;
-            sel.value = currentSelectedValue; 
-        });
-    }
 
     function handleExit() {
         if (isSaving) {
@@ -360,7 +142,6 @@
     }
 
     async function init() {
-        applyTranslations(); 
         fetch('https://worldtimeapi.org/api/timezone/Africa/Casablanca').then(r => r.json()).then(d => { if(d) officialTime = new Date(d.datetime); });
         try {
             const res = await fetch(SCRIPT_URL);
@@ -387,14 +168,20 @@
         return new Date(2000+y, m-1, d);
     }
 
-    // Helper to beautifully format raw incoming timestamp rows to match sheet dd/MM/yy HH:mm layout
-    function formatArchiveStamp(val) {
-        if (!val) return "";
-        if (typeof val === 'string' && val.includes('T') && !isNaN(Date.parse(val))) {
-            const d = new Date(val);
-            const dateStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
-            const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-            return `${dateStr} ${timeStr}`;
+    // Universal clear layout filter that fixes Google sheet raw JSON date format outputs instantly
+    function cleanSheetValue(val) {
+        if (val === undefined || val === null) return "";
+        const sVal = String(val).trim();
+        // Check if value is a raw ISO string representation
+        if (sVal.includes('T') && sVal.includes('Z') && !isNaN(Date.parse(sVal))) {
+            const d = new Date(sVal);
+            const dStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+            const tStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            // If time is midnight exactly, it might just be a standard plain Date column entry
+            if (tStr === "00:00") {
+                return dStr;
+            }
+            return `${dStr} ${tStr}`;
         }
         return val;
     }
@@ -402,8 +189,6 @@
     function renderTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
-        const trans = translations[currentLang];
-        
         for (let i = 1; i < currentData.length; i++) {
             const row = currentData[i];
             const tr = document.createElement('tr');
@@ -416,8 +201,8 @@
                 <td><input value="${row[4]||''}" onchange="upd(${i},4,this.value)"></td>
                 <td><input value="${row[5]||''}" onchange="upd(${i},5,this.value)"></td>
                 <td>
-                    <button class="btn-up" onclick="document.getElementById('up-${i}').click()">${trans.btnUpload}</button>
-                    <div id="up-ld-${i}" class="up-loading">${trans.lblUploading}</div>
+                    <button class="btn-up" onclick="document.getElementById('up-${i}').click()">UPLOAD</button>
+                    <div id="up-ld-${i}" class="up-loading">UPLOADING...</div>
                     <input type="file" id="up-${i}" hidden onchange="handleUpload(${i}, this)">
                     ${row[6] ? `<a href="${row[6]}" target="_blank" style="font-size:20px;">📄</a>` : ''}
                 </td>
@@ -434,11 +219,11 @@
                 <td><input value="${row[17]||''}" onchange="upd(${i},17,this.value)"></td>
                 <td><input value="${row[18]||''}" onchange="upd(${i},18,this.value)"></td>
                 <td>
-                    <select class="state-selector" onchange="upd(${i},19,this.value)">
+                    <select onchange="upd(${i},19,this.value)">
                         <option value="" ${row[19]==''?'selected':''}>-</option>
-                        <option value="ACTIVE/PAID" ${row[19]=='ACTIVE/PAID'?'selected':''}>${trans.stateActive}</option>
-                        <option value="RESERVED" ${row[19]=='RESERVED'?'selected':''}>${trans.stateReserved}</option>
-                        <option value="PARTIAL" ${row[19]=='PARTIAL'?'selected':''}>${trans.statePartial}</option>
+                        <option value="ACTIVE/PAID" ${row[19]=='ACTIVE/PAID'?'selected':''}>ACTIVE/PAID</option>
+                        <option value="RESERVED" ${row[19]=='RESERVED'?'selected':''}>RESERVED</option>
+                        <option value="PARTIAL" ${row[19]=='PARTIAL'?'selected':''}>PARTIAL</option>
                     </select>
                 </td>
                 <td>
@@ -451,7 +236,7 @@
                     </select>
                 </td>
                 <td><input value="${row[21]||''}" onchange="upd(${i},21,this.value)"></td>
-                <td><button class="btn-finish" onclick="archiveRow(${i})">${trans.btnFinish}</button></td>
+                <td><button class="btn-finish" onclick="archiveRow(${i})">FINISH</button></td>
             `;
             tbody.appendChild(tr);
         }
@@ -483,19 +268,8 @@
     async function sync() {
         isSaving = true;
         updateStatus("SAVING...", "#f39c12");
-        
-        // Clean array data to exactly 22 items per row to comply with Google Script getRange bound limits
-        const cleanedData = currentData.map(row => {
-            const subRow = row.slice(0, 22);
-            while(subRow.length < 22) subRow.push("");
-            return subRow;
-        });
-
         try {
-            await fetch(SCRIPT_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ token: AUTH_TOKEN, action: "saveAll", data: cleanedData }) 
-            });
+            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", data: currentData }) });
             updateStatus("LIVE", "#2ecc71");
             isSaving = false;
         } catch(e) { 
@@ -513,10 +287,7 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             const base64 = e.target.result.split(',')[1];
-            const res = await fetch(SCRIPT_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ token: AUTH_TOKEN, action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })
-            });
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })});
             currentData[i][6] = await res.text();
             document.getElementById(`up-ld-${i}`).style.display = "none";
             isSaving = false;
@@ -528,17 +299,11 @@
 
     async function runHistorySearch() {
         const status = document.getElementById('search-status');
-        const trans = translations[currentLang];
-        status.innerText = trans.statusSearching; status.style.color = "#f39c12";
-        
+        status.innerText = "SEARCHING..."; status.style.color = "#f39c12";
         const q = document.getElementById('uSearch').value.toLowerCase();
         const sD = parseEliteDate(document.getElementById('dateStart').value);
         const eD = parseEliteDate(document.getElementById('dateEnd').value);
-        
-        const res = await fetch(SCRIPT_URL, { 
-            method: "POST", 
-            body: JSON.stringify({ token: AUTH_TOKEN, action: "getHistory" }) 
-        });
+        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getHistory" }) });
         const history = await res.json();
         const filtered = history.filter((r, idx) => {
             if(idx === 0) return false;
@@ -553,51 +318,33 @@
             return textMatch && dateMatch;
         });
 
-        // Mapping search results cleanly with accurate localized lookup for state option tags
-        document.getElementById('resBody').innerHTML = filtered.map(r => {
-            let stateLabel = r[19] || '';
-            if (r[19] === "ACTIVE/PAID") stateLabel = trans.stateActive;
-            else if (r[19] === "RESERVED") stateLabel = trans.stateReserved;
-            else if (r[19] === "PARTIAL") stateLabel = trans.statePartial;
-
-            return `
-                <tr>
-                    <td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td>
-                    <td>${r[6]?'<a href="'+r[6]+'" target="_blank">📄</a>':''}</td>
-                    <td>${r[7]}</td><td>${r[8]}</td><td>${r[9]}</td><td>${r[10]}</td><td>${r[11]}</td>
-                    <td>${r[12]}</td><td>${r[13]}</td><td>${r[14]}</td><td>${r[15]}</td><td>${r[16]}</td>
-                    <td>${r[17]}</td><td>${r[18]}</td>
-                    <td>${stateLabel}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${r[21]}</td><td>${formatArchiveStamp(r[22])}</td>
-                </tr>
-            `;
-        }).join('');
-        status.innerText = filtered.length + trans.statusResults; status.style.color = "#2ecc71";
+        document.getElementById('resBody').innerHTML = filtered.map(r => `
+            <tr>
+                <td>${cleanSheetValue(r[0])}</td><td>${cleanSheetValue(r[1])}</td><td>${cleanSheetValue(r[2])}</td><td>${cleanSheetValue(r[3])}</td><td>${cleanSheetValue(r[4])}</td><td>${cleanSheetValue(r[5])}</td>
+                <td>${r[6]?'<a href="'+r[6]+'" target="_blank">📄</a>':''}</td>
+                <td>${cleanSheetValue(r[7])}</td><td>${cleanSheetValue(r[8])}</td><td>${cleanSheetValue(r[9])}</td><td>${cleanSheetValue(r[10])}</td><td>${cleanSheetValue(r[11])}</td>
+                <td>${cleanSheetValue(r[12])}</td><td>${cleanSheetValue(r[13])}</td><td>${cleanSheetValue(r[14])}</td><td>${cleanSheetValue(r[15])}</td><td>${cleanSheetValue(r[16])}</td>
+                <td>${cleanSheetValue(r[17])}</td><td>${cleanSheetValue(r[18])}</td>
+                <td>${cleanSheetValue(r[19])}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${cleanSheetValue(r[21])}</td><td>${cleanSheetValue(r[22])}</td>
+            </tr>
+        `).join('');
+        status.innerText = filtered.length + " RESULTS FOUND"; status.style.color = "#2ecc71";
     }
 
     function clearHistorySearch() {
-        const trans = translations[currentLang];
         document.getElementById('uSearch').value = "";
         document.getElementById('dateStart').value = "";
         document.getElementById('dateEnd').value = "";
         document.getElementById('resBody').innerHTML = "";
-        document.getElementById('search-status').innerText = trans.statusReady;
+        document.getElementById('search-status').innerText = "READY";
         document.getElementById('search-status').style.color = "white";
     }
 
     async function archiveRow(i) {
-        const trans = translations[currentLang];
-        if(confirm(trans.confirmArchive)) {
+        if(confirm("MOVE TO HISTORY?")) {
             isSaving = true;
             updateStatus("ARCHIVING...", "#f39c12");
-            
-            // Clean individual row data to exactly 22 elements before submitting to archive payload
-            const rowToArchive = currentData[i].slice(0, 22);
-            while(rowToArchive.length < 22) rowToArchive.push("");
-
-            await fetch(SCRIPT_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ token: AUTH_TOKEN, action: "archive", row: i, data: rowToArchive, officialTime: officialTime.toISOString() })
-            });
+            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "archive", row: i, data: currentData[i], officialTime: officialTime.toISOString() })});
             isSaving = false;
             location.reload();
         }
