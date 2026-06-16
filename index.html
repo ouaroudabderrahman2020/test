@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELITE CAR V9.2 - KM TRACKING</title>
+    <style>
+        :root { 
+            --primary: #2c3e50; --orange: #e67e22; --green: #2ecc71; 
+            --red: #ffcdd2; --dark-red: #b71c1c; --blue: #3498db; --light-orange: #fff4e6;
+            --border-color: #333;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #000; overflow-x: hidden; }
+
+        .header-section { background: white; padding: 15px; border-bottom: 3px solid #ddd; position: sticky; top: 0; z-index: 1000; }
+        .logo-row { text-align: center; margin-bottom: 10px; }
+        .main-logo { height: 80px; width: auto; }
+        @media (min-width: 768px) { .main-logo { height: 120px; } }
+
+        .status-row { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; padding: 10px; }
+        .clock-display { background: white; border: 2px solid #eee; padding: 5px 15px; border-radius: 8px; text-align: center; font-weight: bold; min-width: 140px; }
+        
+        #sync-text { font-weight: 900; font-size: 18px; transition: 0.3s; }
+        .status-pulse { animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .table-wrapper { padding: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { border-collapse: collapse; background: white; min-width: 3400px; border: 3px solid var(--border-color); }
+        th { background: var(--primary); color: white; padding: 12px; border: 1px solid #fff; text-transform: uppercase; font-size: 13px; position: sticky; top: 0; }
+        td { border: 1px solid var(--border-color); padding: 2px; text-align: center; height: 50px; font-size: 16px; font-weight: 700; }
+        
+        input, select { border: none; width: 100%; box-sizing: border-box; font-size: 16px; font-weight: 700; outline: none; background: transparent; text-align: center; color: inherit; padding: 10px 2px; }
+
+        .row-overdue { background-color: var(--red) !important; color: var(--dark-red) !important; } 
+        .row-reserved { background-color: #b3e5fc !important; } 
+        .row-partial { background-color: #fff9c4 !important; }  
+        .row-active { background-color: #c8e6c9 !important; }   
+        .col-orange { background-color: var(--light-orange) !important; }
+
+        .up-loading { font-size: 10px; color: var(--blue); animation: blink 1s infinite; display: none; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .btn-up { background: var(--blue); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-finish { background: var(--primary); color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+
+        .console { background: #2c3e50; color: white; padding: 30px 15px; margin-top: 20px; }
+        .search-grid { display: flex; flex-direction: column; gap: 15px; align-items: center; justify-content: center; }
+        @media (min-width: 768px) { .search-grid { flex-direction: row; } }
+        .search-box { background: white; padding: 10px; border-radius: 8px; color: black; display: flex; gap: 10px; align-items: center; min-width: 280px; }
+        .btn-search { background: var(--blue); color: white; border: none; padding: 12px 35px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .btn-reset { background: #e74c3c; color: white; border: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+   .btn-tools {
+    background: #2c3e50; /* Matches your --primary color */
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: 2px solid #eee;
+    transition: 0.3s;
+}
+
+.btn-tools:hover {
+    background: #34495e;
+    border-color: var(--blue);
+}
+    </style>
+</head>
+<body onbeforeunload="return handleExit()">
+
+<div class="header-section">
+    <div class="logo-row"><img src="logo.jpg" alt="ELITE" class="main-logo"></div>
+    <div class="status-row">
+        <a href="https://glamcarsnador.github.io/utility-website/" target="_blank" rel="noopener noreferrer" class="btn-tools">
+        TOOLS
+    </a>
+        <div class="clock-display">
+            <div id="live-date">--/--/--</div>
+            <div id="live-clock" style="color: var(--orange); font-size: 20px;">00:00:00</div>
+        </div>
+        <div>
+            <span id="sync-dot" style="color:#2ecc71">●</span> 
+            <span id="sync-text" style="color:#2ecc71">LIVE</span>
+        </div>
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>CAR</th><th>MATRICULE</th><th>CLIENT NAME</th><th>PHONE</th><th>ID CARD N°</th><th>DRIVING LICENCE</th><th>DOCS</th>
+                <th>DATE OUT</th><th>TIME OUT</th><th>DATE IN</th><th>EXT. DATE IN</th><th>TIME IN</th><th>DAYS</th><th>DAY PRICE</th>
+                <th>TOTAL</th><th>ADVANCE</th><th>REMAINING</th><th>KM OUT</th><th>KM IN</th><th>STATE</th><th>RANKING</th><th>NOTES</th><th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<div class="console">
+    <h2 style="margin-bottom: 20px;">HISTORY SEARCH</h2>
+    <div class="search-grid">
+        <div class="search-box">
+            <label style="font-size:10px; color:gray;">DATA</label>
+            <input type="text" id="uSearch" placeholder="NAME, PHONE, CAR..." style="text-align:left;">
+        </div>
+        <div class="search-box">
+            <label style="font-size:10px; color:gray;">FROM</label><input type="text" id="dateStart" placeholder="dd/mm/yy" style="width:80px;">
+            <label style="font-size:10px; color:gray;">TO</label><input type="text" id="dateEnd" placeholder="dd/mm/yy" style="width:80px;">
+        </div>
+        <button class="btn-search" onclick="runHistorySearch()">SEARCH</button>
+        <button class="btn-reset" onclick="clearHistorySearch()">RESET</button>
+    </div>
+    <div style="margin-top: 15px; font-weight: bold;"><span id="search-status">READY</span></div>
+
+    <div class="table-wrapper" style="margin-top:20px; background:white; color:black;">
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>CAR</th><th>MATRICULE</th><th>CLIENT NAME</th><th>PHONE</th><th>ID CARD N°</th><th>DRIVING LICENCE</th><th>DOCS</th>
+                    <th>DATE OUT</th><th>TIME OUT</th><th>DATE IN</th><th>EXT. DATE IN</th><th>TIME IN</th><th>DAYS</th><th>DAY PRICE</th>
+                    <th>TOTAL</th><th>ADVANCE</th><th>REMAINING</th><th>KM OUT</th><th>KM IN</th><th>STATE</th><th>RANKING</th><th>NOTES</th><th>ARCHIVED ON</th>
+                </tr>
+            </thead>
+            <tbody id="resBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjBDoAYNfltROjndNyGyfyL4tmwaexPe4PrgQrRJeS-vgyWM0quG3SubDxmtrpRLb2/exec"; 
+    let currentData = [];
+    let officialTime = new Date();
+    let isSaving = false;
+
+    function handleExit() {
+        if (isSaving) {
+            return "Wait! Data is currently being saved to the server.";
+        }
+    }
+
+    async function init() {
+        fetch('https://worldtimeapi.org/api/timezone/Africa/Casablanca').then(r => r.json()).then(d => { if(d) officialTime = new Date(d.datetime); });
+        try {
+            const res = await fetch(SCRIPT_URL);
+            currentData = await res.json();
+            renderTable();
+        } catch(e) { updateStatus("OFFLINE", "#e74c3c"); }
+
+        setInterval(() => {
+            officialTime.setSeconds(officialTime.getSeconds() + 1);
+            document.getElementById('live-date').innerText = formatEliteDate(officialTime);
+            document.getElementById('live-clock').innerText = officialTime.toLocaleTimeString('fr-FR', {hour12: false});
+            processRowColors();
+        }, 1000);
+    }
+
+    function formatEliteDate(d) {
+        if(!d || isNaN(d)) return "";
+        return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+    }
+
+    function parseEliteDate(s) {
+        if(!s || s.length < 8) return null;
+        const [d, m, y] = s.split('/').map(Number);
+        return new Date(2000+y, m-1, d);
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        for (let i = 1; i < currentData.length; i++) {
+            const row = currentData[i];
+            const tr = document.createElement('tr');
+            tr.id = `row-${i}`;
+            tr.innerHTML = `
+                <td class="col-orange"><input value="${row[0]||''}" onchange="upd(${i},0,this.value)"></td>
+                <td class="col-orange"><input value="${row[1]||''}" onchange="upd(${i},1,this.value)"></td>
+                <td><input value="${row[2]||''}" onchange="upd(${i},2,this.value)"></td>
+                <td><input value="${row[3]||''}" onchange="upd(${i},3,this.value)"></td>
+                <td><input value="${row[4]||''}" onchange="upd(${i},4,this.value)"></td>
+                <td><input value="${row[5]||''}" onchange="upd(${i},5,this.value)"></td>
+                <td>
+                    <button class="btn-up" onclick="document.getElementById('up-${i}').click()">UPLOAD</button>
+                    <div id="up-ld-${i}" class="up-loading">UPLOADING...</div>
+                    <input type="file" id="up-${i}" hidden onchange="handleUpload(${i}, this)">
+                    ${row[6] ? `<a href="${row[6]}" target="_blank" style="font-size:20px;">📄</a>` : ''}
+                </td>
+                <td><input value="${row[7]||''}" placeholder="dd/mm/yy" onchange="upd(${i},7,this.value)"></td>
+                <td><input value="${row[8]||''}" placeholder="hh:mm" onchange="upd(${i},8,this.value)"></td>
+                <td><input value="${row[9]||''}" placeholder="dd/mm/yy" onchange="upd(${i},9,this.value)"></td>
+                <td><input value="${row[10]||''}" placeholder="dd/mm/yy" onchange="upd(${i},10,this.value)"></td>
+                <td><input value="${row[11]||''}" placeholder="hh:mm" onchange="upd(${i},11,this.value)"></td>
+                <td><input value="${row[12]||''}" onchange="upd(${i},12,this.value)"></td>
+                <td><input value="${row[13]||''}" onchange="upd(${i},13,this.value)"></td>
+                <td><input value="${row[14]||''}" onchange="upd(${i},14,this.value)"></td>
+                <td><input value="${row[15]||''}" onchange="upd(${i},15,this.value)"></td>
+                <td><input value="${row[16]||''}" onchange="upd(${i},16,this.value)"></td>
+                <td><input value="${row[17]||''}" onchange="upd(${i},17,this.value)"></td>
+                <td><input value="${row[18]||''}" onchange="upd(${i},18,this.value)"></td>
+                <td>
+                    <select onchange="upd(${i},19,this.value)">
+                        <option value="" ${row[19]==''?'selected':''}>-</option>
+                        <option value="ACTIVE/PAID" ${row[19]=='ACTIVE/PAID'?'selected':''}>ACTIVE/PAID</option>
+                        <option value="RESERVED" ${row[19]=='RESERVED'?'selected':''}>RESERVED</option>
+                        <option value="PARTIAL" ${row[19]=='PARTIAL'?'selected':''}>PARTIAL</option>
+                    </select>
+                </td>
+                <td>
+                    <select onchange="upd(${i},20,this.value)" style="color:#f1c40f; font-size:18px;">
+                        <option value="1" ${row[20]=='1'?'selected':''}>★</option>
+                        <option value="2" ${row[20]=='2'?'selected':''}>★★</option>
+                        <option value="3" ${row[20]=='3'?'selected':''}>★★★</option>
+                        <option value="4" ${row[20]=='4'?'selected':''}>★★★★</option>
+                        <option value="5" ${row[20]=='5'?'selected':''}>★★★★★</option>
+                    </select>
+                </td>
+                <td><input value="${row[21]||''}" onchange="upd(${i},21,this.value)"></td>
+                <td><button class="btn-finish" onclick="archiveRow(${i})">FINISH</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    }
+
+    function processRowColors() {
+        for (let i = 1; i < currentData.length; i++) {
+            const tr = document.getElementById(`row-${i}`);
+            if(!tr) continue;
+            let cls = "";
+            const row = currentData[i];
+            const end = parseEliteDate(row[10] || row[9]);
+            if(end && row[2]) {
+                const [h, m] = (row[11] || "00:00").split(':').map(Number);
+                end.setHours(h || 0, m || 0, 0);
+                if(end < officialTime) cls = "row-overdue";
+            }
+            if(!cls) {
+                if(row[19] === "RESERVED") cls = "row-reserved";
+                else if(row[19] === "PARTIAL") cls = "row-partial";
+                else if(row[19] === "ACTIVE/PAID") cls = "row-active";
+            }
+            if(tr.className !== cls) tr.className = cls;
+        }
+    }
+
+    function upd(r, c, v) { currentData[r][c] = v; sync(); }
+
+    async function sync() {
+        isSaving = true;
+        updateStatus("SAVING...", "#f39c12");
+        try {
+            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", data: currentData }) });
+            updateStatus("LIVE", "#2ecc71");
+            isSaving = false;
+        } catch(e) { 
+            updateStatus("ERROR - RETRYING...", "#e74c3c"); 
+            setTimeout(sync, 2000);
+        }
+    }
+
+    async function handleUpload(i, input) {
+        const file = input.files[0];
+        if(!file) return;
+        isSaving = true;
+        document.getElementById(`up-ld-${i}`).style.display = "block";
+        updateStatus("UPLOADING...", "#3498db");
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const base64 = e.target.result.split(',')[1];
+            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })});
+            currentData[i][6] = await res.text();
+            document.getElementById(`up-ld-${i}`).style.display = "none";
+            isSaving = false;
+            updateStatus("LIVE", "#2ecc71");
+            renderTable();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function runHistorySearch() {
+        const status = document.getElementById('search-status');
+        status.innerText = "SEARCHING..."; status.style.color = "#f39c12";
+        const q = document.getElementById('uSearch').value.toLowerCase();
+        const sD = parseEliteDate(document.getElementById('dateStart').value);
+        const eD = parseEliteDate(document.getElementById('dateEnd').value);
+        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getHistory" }) });
+        const history = await res.json();
+        const filtered = history.filter((r, idx) => {
+            if(idx === 0) return false;
+            const textMatch = q === "" || r.some(c => String(c).toLowerCase().includes(q));
+            const rOut = parseEliteDate(r[7]);
+            const rIn = parseEliteDate(r[10]||r[9]);
+            let dateMatch = true;
+            if(sD && eD && rOut && rIn) {
+                sD.setHours(0,0,0); eD.setHours(23,59,59);
+                dateMatch = (rOut <= eD && rIn >= sD);
+            }
+            return textMatch && dateMatch;
+        });
+
+        document.getElementById('resBody').innerHTML = filtered.map(r => `
+            <tr>
+                <td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td>
+                <td>${r[6]?'<a href="'+r[6]+'" target="_blank">📄</a>':''}</td>
+                <td>${r[7]}</td><td>${r[8]}</td><td>${r[9]}</td><td>${r[10]}</td><td>${r[11]}</td>
+                <td>${r[12]}</td><td>${r[13]}</td><td>${r[14]}</td><td>${r[15]}</td><td>${r[16]}</td>
+                <td>${r[17]}</td><td>${r[18]}</td>
+                <td>${r[19]}</td><td style="color:#f1c40f">${'★'.repeat(parseInt(r[20])||0)}</td><td>${r[21]}</td><td>${r[22]||''}</td>
+            </tr>
+        `).join('');
+        status.innerText = filtered.length + " RESULTS FOUND"; status.style.color = "#2ecc71";
+    }
+
+    function clearHistorySearch() {
+        document.getElementById('uSearch').value = "";
+        document.getElementById('dateStart').value = "";
+        document.getElementById('dateEnd').value = "";
+        document.getElementById('resBody').innerHTML = "";
+        document.getElementById('search-status').innerText = "READY";
+        document.getElementById('search-status').style.color = "white";
+    }
+
+    async function archiveRow(i) {
+        if(confirm("MOVE TO HISTORY?")) {
+            isSaving = true;
+            updateStatus("ARCHIVING...", "#f39c12");
+            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "archive", row: i, data: currentData[i], officialTime: officialTime.toISOString() })});
+            isSaving = false;
+            location.reload();
+        }
+    }
+
+    function updateStatus(t, c) { 
+        const txt = document.getElementById('sync-text');
+        const dot = document.getElementById('sync-dot');
+        txt.innerText = t; txt.style.color = c; dot.style.color = c;
+        if(t.includes("...")) txt.classList.add("status-pulse");
+        else txt.classList.remove("status-pulse");
+    }
+    init();
+</script>
+</body>
+</html>
