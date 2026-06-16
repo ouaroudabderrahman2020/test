@@ -126,7 +126,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwItFI9yk5RYh0oGE3VsbtNOx3BcPIoHadjMYV6vkbfLjFLvwwt0FAs1hj9diSvHZs_Fg/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5ew410rlpFbegfn15J5-r4J2cX-nXoki8cx1WFy7ZFM8pKi5VQ6kgOfESs2Egeaw8HA/exec"; 
     let currentData = [];
     let officialTime = new Date();
     let isSaving = false;
@@ -306,12 +306,15 @@
         const q = document.getElementById('uSearch').value.toLowerCase().trim();
         
         try {
-            // Added explicit follow rules to allow standard Google 302 cross-origin redirections to settle smoothly
-            const res = await fetch(SCRIPT_URL + "?action=getHistory", { method: "GET", redirect: "follow" });
+            const res = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ action: "getHistory" }) 
+            });
             const history = await res.json();
             
             const filtered = history.filter((r, idx) => {
                 if(idx === 0) return false;
+                // Checks if input value matches any data column cells anywhere across the active row query
                 return q === "" || r.some(c => cleanSheetValue(c).toLowerCase().includes(q));
             });
 
