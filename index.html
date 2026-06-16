@@ -123,6 +123,7 @@
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJtuv7p5PRGqATd4jaGr7gUvB6H4f2Ub-_ZVi3CxeeiLn4_XFpDdkIl-51QqK2dF_WPw/exec"; 
+    const AUTH_TOKEN = "Honda@1979"; // Matches security rules in the Google Apps Script
     let currentData = [];
     let officialTime = new Date();
     let isSaving = false;
@@ -388,8 +389,19 @@
     async function sync() {
         isSaving = true;
         updateStatus("SAVING...", "#f39c12");
+        
+        // Clean array data to exactly 22 items per row to comply with Google Script getRange bound limits
+        const cleanedData = currentData.map(row => {
+            const subRow = row.slice(0, 22);
+            while(subRow.length < 22) subRow.push("");
+            return subRow;
+        });
+
         try {
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "saveAll", data: currentData }) });
+            await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ token: AUTH_TOKEN, action: "saveAll", data: cleanedData }) 
+            });
             updateStatus("LIVE", "#2ecc71");
             isSaving = false;
         } catch(e) { 
@@ -407,7 +419,10 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             const base64 = e.target.result.split(',')[1];
-            const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })});
+            const res = await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ token: AUTH_TOKEN, action: "upload", row: i, filename: file.name, mimeType: file.type, base64: base64 })
+            });
             currentData[i][6] = await res.text();
             document.getElementById(`up-ld-${i}`).style.display = "none";
             isSaving = false;
@@ -425,7 +440,11 @@
         const q = document.getElementById('uSearch').value.toLowerCase();
         const sD = parseEliteDate(document.getElementById('dateStart').value);
         const eD = parseEliteDate(document.getElementById('dateEnd').value);
-        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "getHistory" }) });
+        
+        const res = await fetch(SCRIPT_URL, { 
+            method: "POST", 
+            body: JSON.stringify({ token: AUTH_TOKEN, action: "getHistory" }) 
+        });
         const history = await res.json();
         const filtered = history.filter((r, idx) => {
             if(idx === 0) return false;
@@ -476,7 +495,15 @@
         if(confirm(trans.confirmArchive)) {
             isSaving = true;
             updateStatus("ARCHIVING...", "#f39c12");
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "archive", row: i, data: currentData[i], officialTime: officialTime.toISOString() })});
+            
+            // Clean individual row data to exactly 22 elements before submitting to archive payload
+            const rowToArchive = currentData[i].slice(0, 22);
+            while(rowToArchive.length < 22) rowToArchive.push("");
+
+            await fetch(SCRIPT_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ token: AUTH_TOKEN, action: "archive", row: i, data: rowToArchive, officialTime: officialTime.toISOString() })
+            });
             isSaving = false;
             location.reload();
         }
